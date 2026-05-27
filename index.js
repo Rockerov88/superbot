@@ -1,4 +1,4 @@
-// v12 - localized stats tracker (correct / total) without emojis
+// v13 - fixed string interpolation for localstorage counter
 export default {
   async fetch(request) {
     const html = `
@@ -18,7 +18,6 @@ export default {
         .btn:active { transform: scale(0.98); }
         .btn-back { background: none; border: none; color: var(--tg-theme-button-color, #248bed); font-size: 14px; font-weight: 500; cursor: pointer; padding: 0; margin-bottom: 15px; }
         
-        /* Блок плашки в главном меню */
         .counters-block { position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
         .badge { font-size: 11px; font-weight: bold; background: var(--tg-theme-button-color, #248bed); color: var(--tg-theme-button-text-color, #fff); padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
         .badge-global { background: #6c757d; }
@@ -33,7 +32,6 @@ export default {
 </head>
 <body>
 <div class="card">
-    <!-- Глобальная плашка общего прогресса в главном меню -->
     <div class="counters-block" id="main-counters">
         <div class="badge badge-global">Решено задач: <span id="global-solved">0</span> / <span id="global-total">0</span></div>
     </div>
@@ -46,7 +44,6 @@ export default {
     <div id="screen-test" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <button class="btn-back" id="back-btn">Назад в меню</button>
-            <!-- Локальный счетчик правильных ответов в текущем модуле -->
             <div class="badge" style="margin-bottom: 15px;">В модуле: <span id="module-counter">0 / 0</span></div>
         </div>
         <div class="counter" id="q-counter"></div>
@@ -76,51 +73,48 @@ export default {
     };
 
     let curMod = [], curName = "", curKey = "", curIdx = 0, isChecked = false, score = 0;
-    const \$ = id => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
-    // Подсчет общего количества вопросов во ВСЕЙ базе данных
     let totalQuestionsInDB = 0;
     Object.keys(db).forEach(key => { totalQuestionsInDB += db[key].list.length; });
 
-    // Функция обновления глобальной плашки в главном меню
     function updateGlobalMenuUI() {
         let totalCorrectSaved = 0;
-        // Складываем сохраненные правильные ответы по каждому модулю
         Object.keys(db).forEach(key => {
-            const savedScore = parseInt(localStorage.getItem(\`score_\${key}\`)) || 0;
+            // ИСПРАВЛЕНО: Правильная интерполяция строк без лишних экранирований
+            const savedScore = parseInt(localStorage.getItem('score_' + key)) || 0;
             totalCorrectSaved += savedScore;
         });
         
-        \$('global-solved').innerText = totalCorrectSaved;
-        \$('global-total').innerText = totalQuestionsInDB;
+        $('global-solved').innerText = totalCorrectSaved;
+        $('global-total').innerText = totalQuestionsInDB;
     }
 
-    // Автоматическая генерация кнопок меню
     Object.keys(db).forEach(key => {
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.innerText = db[key].name;
         btn.onclick = () => {
             curMod = db[key].list; curName = db[key].name; curKey = key; curIdx = score = 0;
-            \$('screen-modules').style.display = 'none'; \$('main-counters').style.display = 'none'; \$('screen-test').style.display = 'block';
+            $('screen-modules').style.display = 'none'; $('main-counters').style.display = 'none'; $('screen-test').style.display = 'block';
             showQ();
         };
-        \$('menu-grid').appendChild(btn);
+        $('menu-grid').appendChild(btn);
     });
 
     const toMenu = () => { 
-        \$('screen-test').style.display = \$('screen-result').style.display = 'none'; 
-        \$('screen-modules').style.display = 'block'; \$('main-counters').style.display = 'flex';
+        $('screen-test').style.display = $('screen-result').style.display = 'none'; 
+        $('screen-modules').style.display = 'block'; $('main-counters').style.display = 'flex';
         updateGlobalMenuUI();
     };
-    \$('back-btn').onclick = toMenu; \$('finish-btn').onclick = toMenu;
+    $('back-btn').onclick = toMenu; $('finish-btn').onclick = toMenu;
 
     function showQ() {
         isChecked = false;
-        \$('q-counter').innerText = \`\${curName} • Вопрос \${curIdx + 1} из \${curMod.length}\`;
-        \$('module-counter').innerText = \`\${score} / \${curMod.length}\`;
-        \$('q-text').innerText = curMod[curIdx].q;
-        \$('user-ans').value = ""; $('user-ans').disabled = false;
+        $('q-counter').innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
+        $('module-counter').innerText = score + " / " + curMod.length;
+        $('q-text').innerText = curMod[curIdx].q;
+        $('user-ans').value = ""; $('user-ans').disabled = false;
         $('res-box').style.display = 'none'; $('action-btn').innerText = "Проверить ответ";
     }
 
@@ -128,10 +122,9 @@ export default {
         if (isChecked) {
             if (++curIdx < curMod.length) return showQ();
             
-            // Завершение модуля: фиксируем рекорд по конкретному модулю в локальную память
-            const previousRecord = parseInt(localStorage.getItem(\`score_\${curKey}\`)) || 0;
+            const previousRecord = parseInt(localStorage.getItem('score_' + curKey)) || 0;
             if (score > previousRecord) {
-                localStorage.setItem(\`score_\${curKey}\`, String(score));
+                localStorage.setItem('score_' + curKey, String(score));
             }
 
             $('screen-test').style.display = 'none'; $('screen-result').style.display = 'block';
@@ -145,13 +138,12 @@ export default {
         
         if (isRight) score++;
         
-        $('module-counter').innerText = \`\${score} / \${curMod.length}\`;
-        $('res-box').className = \`result-box \${isRight ? 'correct' : 'wrong'}\`;
-        $('res-box').innerHTML = isRight ? "Правильно" : \`Неверно.<br><div class="explanation">Ответ: <b>\${curMod[curIdx].a}</b></div><div class="explanation">\${curMod[curIdx].info}</div>\`;
+        $('module-counter').innerText = score + " / " + curMod.length;
+        $('res-box').className = "result-box " + (isRight ? 'correct' : 'wrong');
+        $('res-box').innerHTML = isRight ? "Правильно" : "Неверно.<br><div class='explanation'>Ответ: <b>" + curMod[curIdx].a + "</b></div><div class='explanation'>" + curMod[curIdx].info + "</div>";
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');
     };
 
-    // Первичный запуск отрисовки глобальной плашки при открытии
     updateGlobalMenuUI();
 </script>
 </body>
