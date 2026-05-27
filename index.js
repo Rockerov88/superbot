@@ -1,4 +1,3 @@
-// v5 - fixed positioning error
 export default {
   async fetch(request, env, ctx) {
     const html = `
@@ -22,7 +21,7 @@ export default {
             border-radius: 16px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             width: 100%; max-width: 440px; box-sizing: border-box;
-            position: relative; /* Важно для фиксации счетчика */
+            position: relative;
         }
         h2 { color: var(--tg-theme-button-color, #248bed); margin-top: 0; text-align: center; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
@@ -44,7 +43,6 @@ export default {
             text-align: left;
         }
         
-        /* Жесткое позиционирование счетчика в правом верхнем углу */
         .right-counter {
             position: absolute;
             top: 20px;
@@ -82,20 +80,18 @@ export default {
     <div id="screen-modules">
         <h2>Выбери модуль для учебы</h2>
         <div class="grid">
-            <button class="btn" id="btn-proteins"> Белки</button>
-            <button class="btn" id="btn-enzymes">Ферменты. Гормоны</button>
-            <button class="btn" id="btn-metabolism">Обмен веществ и углеводов</button>
-            <button class="btn" id="btn-protmetab">Обмен белков</button>
-            <button class="btn" id="btn-lipmetab">Обмен липидов</button>
-            <button class="btn" id="btn-blood">Биохимия крови</button>
+            <button class="btn" id="btn-proteins" data-module="proteins" data-name="Белки">Белки</button>
+            <button class="btn" id="btn-enzymes" data-module="enzymes" data-name="Ферменты. Гормоны">Ферменты. Гормоны</button>
+            <button class="btn" id="btn-metabolism" data-module="metabolism" data-name="Обмен веществ и углеводов">Обмен веществ и углеводов</button>
+            <button class="btn" id="btn-protmetab" data-module="protmetab" data-name="Обмен белков">Обмен белков</button>
+            <button class="btn" id="btn-lipmetab" data-module="lipmetab" data-name="Обмен липидов">Обмен липидов</button>
+            <button class="btn" id="btn-blood" data-module="blood" data-name="Биохимия крови">Биохимия крови</button>
         </div>
     </div>
 
-    <!-- ЭКРАН 2: САМ ТЕСТ -->
+    <!-- ЭКРАН 2: ТЕСТ -->
     <div id="screen-test" style="display: none;">
-        <button class="btn-back-header" id="header-back-btn">⬅ Назад в меню</button>
-        
-        <!-- Счетчик теперь внутри правильного контейнера -->
+        <button class="btn-back-header" id="header-back-btn">Назад в меню</button>
         <div class="right-counter" id="right-score-counter">0 / 0</div>
         
         <div class="counter" id="quiz-counter">Вопрос 1</div>
@@ -112,11 +108,11 @@ export default {
 
     <!-- ЭКРАН 3: РЕЗУЛЬТАТ -->
     <div id="screen-result" style="display: none;">
-        <h2>🎉 Модуль пройден!</h2>
+        <h2>Модуль пройден</h2>
         <p style="text-align:center; font-size: 18px; margin: 15px 0;">
             Твой итоговый результат: <b id="final-score">0</b> из <b id="final-total">0</b>
         </p>
-        <button class="btn" id="finish-back-btn">📋 Вернуться в главное меню</button>
+        <button class="btn" id="finish-back-btn">Вернуться в главное меню</button>
     </div>
 </div>
 
@@ -183,12 +179,15 @@ export default {
         showQuestion();
     }
 
-    document.getElementById('btn-proteins').addEventListener('click', () => startTest('proteins', 'Белки'));
-    document.getElementById('btn-enzymes').addEventListener('click', () => startTest('enzymes', 'Ферменты. Гормоны'));
-    document.getElementById('btn-metabolism').addEventListener('click', () => startTest('metabolism', 'Обмен веществ и углеводов'));
-    document.getElementById('btn-protmetab').addEventListener('click', () => startTest('protmetab', 'Обмен белков'));
-    document.getElementById('btn-lipmetab').addEventListener('click', () => startTest('lipmetab', 'Обмен липидов'));
-    document.getElementById('btn-blood').addEventListener('click', () => startTest('blood', 'Биохимия крови'));
+    // Надежная привязка обработчиков ко всем кнопкам модулей
+    const menuButtons = screenModules.getElementsByClassName('btn');
+    for (let i = 0; i < menuButtons.length; i++) {
+        menuButtons[i].addEventListener('click', function() {
+            const modId = this.getAttribute('data-module');
+            const modName = this.getAttribute('data-name');
+            startTest(modId, modName);
+        });
+    }
 
     function showQuestion() {
         isChecked = false;
@@ -219,4 +218,11 @@ export default {
         const userAnswer = userInp.value.trim().toLowerCase();
         const correctAnswer = currentModule[currentIdx].a.toLowerCase();
 
-userInp.disabled = true;rBox.style.display = 'block';isChecked = true;actionBtn.innerText = "Следующий вопрос";if (userAnswer === correctAnswer) {score++;rightScoreCounter.innerText = score + " / " + currentModule.length;rBox.className = "result-box correct";rBox.innerHTML = "✨ Правильно!";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');} else {rBox.className = "result-box wrong";rBox.innerHTML = "❌ Неверно.Правильный ответ: " + currentModule[currentIdx].a + "" + currentModule[currentIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');}});`;return new Response(html, {headers: { "content-type": "text/html;charset=UTF-8" },});},};
+        userInp.disabled = true;
+        rBox.style.display = 'block';
+        isChecked = true;
+        actionBtn.innerText = "Следующий вопрос";
+
+        if (userAnswer === correctAnswer) {
+            score++;
+rightScoreCounter.innerText = score + " / " + currentModule.length;rBox.className = "result-box correct";rBox.innerHTML = "Правильно";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');} else {rBox.className = "result-box wrong";rBox.innerHTML = "Неверно.Правильный ответ: " + currentModule[currentIdx].a + "" + currentModule[currentIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');}});`;return new Response(html, {headers: { "content-type": "text/html;charset=UTF-8" },});},};
