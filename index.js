@@ -194,4 +194,5 @@ export default {
         const isRight = \$('user-ans').value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();
         
         if (isRight) score++;
+        $('module-counter').innerText = score + " / " + curMod.length;$('res-box').className = "result-box " + (isRight ? 'correct' : 'wrong');$('res-box').innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
         
