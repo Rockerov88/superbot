@@ -1,4 +1,4 @@
-// v13 - fixed string interpolation for localstorage counter
+// v14 - modern medical mint design with full tg dark theme support
 export default {
   async fetch(request) {
     const html = `
@@ -7,40 +7,85 @@ export default {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тренажер</title>
+    <title>Тренажер — Биохимия</title>
     <script src="https://telegram.org"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; background: var(--tg-theme-bg-color, #f5f5f5); color: var(--tg-theme-text-color, #222); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 90vh; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: var(--tg-theme-bg-color, #f0f7f4); 
+            color: var(--tg-theme-text-color, #1f2937); 
+            margin: 0; padding: 15px; 
+            display: flex; flex-direction: column; align-items: center; min-height: 90vh; 
+        }
         
-        h2 { color: var(--tg-theme-button-color, #248bed); text-align: center; margin-top: 0; }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
-        .btn { background: var(--tg-theme-button-color, #248bed); color: var(--tg-theme-button-text-color, #fff); border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.1s; }
-        .btn:active { transform: scale(0.98); }
-        .btn-back { background: none; border: none; color: var(--tg-theme-button-color, #248bed); font-size: 14px; font-weight: 500; cursor: pointer; padding: 0; margin-bottom: 15px; }
+        /* Карточка с мягкими углами и легкой бирюзовой тенью */
+        .card { 
+            background: var(--tg-theme-secondary-bg-color, #ffffff); 
+            border-radius: 20px; padding: 35px 20px 24px 20px; 
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.08); 
+            width: 100%; max-width: 440px; 
+            box-sizing: border-box; position: relative; 
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
         
-        .counters-block { position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
-        .badge { font-size: 11px; font-weight: bold; background: var(--tg-theme-button-color, #248bed); color: var(--tg-theme-button-text-color, #fff); padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
-        .badge-global { background: #6c757d; }
+        /* Заголовок со смещением вниз под плашку рекордов */
+        h2 { 
+            color: var(--tg-theme-button-color, #008080); 
+            text-align: center; margin: 25px 0 15px 0; 
+            font-size: 22px; font-weight: 700;
+        }
         
-        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 16px; margin-top: 5px; box-sizing: border-box; background: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #000); }
-        .result-box { margin-top: 15px; padding: 12px; border-radius: 10px; font-weight: 600; text-align: center; display: none; }
-        .correct { background: #d4edda; color: #155724; }
-        .wrong { background: #f8d7da; color: #721c24; }
-        .explanation { font-size: 14px; font-weight: normal; margin-top: 5px; opacity: 0.9; }
-        .counter { font-size: 13px; opacity: 0.6; margin-bottom: 5px; }
-                /* Увеличен отступ сверху для карточки, чтобы заголовки не прижимались к краю */
-        .card { background: var(--tg-theme-secondary-bg-color, #fff); border-radius: 16px; padding: 30px 20px 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 440px; box-sizing: border-box; position: relative; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
         
-        /* Смещаем заголовок ниже и добавляем свободного пространства вокруг */
-        h2 {margin: 25px 0 10px 0; }
-        .grid { }
-        .btn {  }
-        .btn:active { 
-        .btn-back { }
+        /* Премиальные градиентные кнопки с объемом */
+        .btn { 
+            background: linear-gradient(135deg, #10b981 0%, #008080 100%); 
+            color: #ffffff; 
+            border: none; border-radius: 14px; padding: 15px; 
+            font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; 
+            box-shadow: 0 4px 12px rgba(0, 128, 128, 0.2);
+            transition: all 0.2s ease; 
+        }
+        .btn:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(0, 128, 128, 0.1); }
         
-        /* Плашка теперь аккуратно прижата к самому верхнему правому краю карточки */
+        /* Кнопка назад без фона */
+        .btn-back { 
+            background: none; border: none; 
+            color: var(--tg-theme-button-color, #008080); 
+            font-size: 14px; font-weight: 600; cursor: pointer; 
+            padding: 0; margin-bottom: 15px; 
+            transition: opacity 0.15s;
+        }
+        .btn-back:active { opacity: 0.7; }
+        
+        /* Верхний блок для счетчиков */
         .counters-block { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
-
+        
+        /* Закругленные медицинские плашки */
+        .badge { 
+            font-size: 11px; font-weight: 700; 
+            background: rgba(0, 128, 128, 0.1); 
+            color: var(--tg-theme-button-color, #008080); 
+            padding: 5px 12px; border-radius: 20px; white-space: nowrap; 
+        }
+        .badge-global { background: #10b981; color: #ffffff; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2); }
+        
+        /* Оптимизированное и чистое поле ввода ответа */
+        .input-field { 
+            width: 100%; padding: 14px; border-radius: 12px; 
+            border: 2px solid rgba(16, 185, 129, 0.2); font-size: 16px; margin-top: 10px; 
+            box-sizing: border-box; background: var(--tg-theme-bg-color, #fafafa); 
+            color: var(--tg-theme-text-color, #1f2937);
+            transition: border-color 0.2s;
+        }
+        .input-field:focus { outline: none; border-color: #008080; }
+        
+        /* Блоки верных/неверных результатов */
+        .result-box { margin-top: 18px; padding: 14px; border-radius: 12px; font-weight: 600; text-align: center; display: none; }
+        .correct { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+        .wrong { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+        .explanation { font-size: 14px; font-weight: normal; margin-top: 6px; opacity: 0.9; line-height: 1.4; }
+        .counter { font-size: 13px; opacity: 0.6; margin-bottom: 5px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -67,7 +112,7 @@ export default {
     </div>
     
     <div id="screen-result" style="display: none; text-align: center;">
-        <h2>Модуль пройден</h2>
+        <h2 style="margin-top: 10px;">Модуль пройден</h2>
         <p style="font-size: 18px; margin: 15px 0;">Твой результат в модуле: <b id="f-score">0</b> из <b id="f-total">0</b></p>
         <button class="btn" id="finish-btn">В главное меню</button>
     </div>
@@ -86,7 +131,7 @@ export default {
     };
 
     let curMod = [], curName = "", curKey = "", curIdx = 0, isChecked = false, score = 0;
-    const $ = id => document.getElementById(id);
+    const \$ = id => document.getElementById(id);
 
     let totalQuestionsInDB = 0;
     Object.keys(db).forEach(key => { totalQuestionsInDB += db[key].list.length; });
@@ -94,13 +139,12 @@ export default {
     function updateGlobalMenuUI() {
         let totalCorrectSaved = 0;
         Object.keys(db).forEach(key => {
-            // ИСПРАВЛЕНО: Правильная интерполяция строк без лишних экранирований
             const savedScore = parseInt(localStorage.getItem('score_' + key)) || 0;
             totalCorrectSaved += savedScore;
         });
         
-        $('global-solved').innerText = totalCorrectSaved;
-        $('global-total').innerText = totalQuestionsInDB;
+        \$('global-solved').innerText = totalCorrectSaved;
+        \$('global-total').innerText = totalQuestionsInDB;
     }
 
     Object.keys(db).forEach(key => {
@@ -109,29 +153,29 @@ export default {
         btn.innerText = db[key].name;
         btn.onclick = () => {
             curMod = db[key].list; curName = db[key].name; curKey = key; curIdx = score = 0;
-            $('screen-modules').style.display = 'none'; $('main-counters').style.display = 'none'; $('screen-test').style.display = 'block';
+            \$('screen-modules').style.display = 'none'; \(('main-counters').style.display = 'none';\)('screen-test').style.display = 'block';
             showQ();
         };
-        $('menu-grid').appendChild(btn);
+        \$('menu-grid').appendChild(btn);
     });
 
     const toMenu = () => { 
-        $('screen-test').style.display = $('screen-result').style.display = 'none'; 
-        $('screen-modules').style.display = 'block'; $('main-counters').style.display = 'flex';
+        \(('screen-test').style.display =\)('screen-result').style.display = 'none'; 
+        \(('screen-modules').style.display = 'block';\)('main-counters').style.display = 'flex';
         updateGlobalMenuUI();
     };
-    $('back-btn').onclick = toMenu; $('finish-btn').onclick = toMenu;
+    \(('back-btn').onclick = toMenu; \)('finish-btn').onclick = toMenu;
 
     function showQ() {
         isChecked = false;
-        $('q-counter').innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
-        $('module-counter').innerText = score + " / " + curMod.length;
-        $('q-text').innerText = curMod[curIdx].q;
-        $('user-ans').value = ""; $('user-ans').disabled = false;
-        $('res-box').style.display = 'none'; $('action-btn').innerText = "Проверить ответ";
+        \$('q-counter').innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
+        \$('module-counter').innerText = score + " / " + curMod.length;
+        \$('q-text').innerText = curMod[curIdx].q;
+        \(('user-ans').value = ""; \)('user-ans').disabled = false;
+        \(('res-box').style.display = 'none';\)('action-btn').innerText = "Проверить ответ";
     }
 
-    $('action-btn').onclick = () => {
+    \$('action-btn').onclick = () => {
         if (isChecked) {
             if (++curIdx < curMod.length) return showQ();
             
@@ -140,28 +184,14 @@ export default {
                 localStorage.setItem('score_' + curKey, String(score));
             }
 
-            $('screen-test').style.display = 'none'; $('screen-result').style.display = 'block';
-            $('f-score').innerText = score; $('f-total').innerText = curMod.length;
+            \(('screen-test').style.display = 'none';\)('screen-result').style.display = 'block';
+            \(('f-score').innerText = score; \)('f-total').innerText = curMod.length;
             if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             return;
         }
         
-        isChecked = true; $('user-ans').disabled = true; $('res-box').style.display = 'block'; $('action-btn').innerText = "Следующий вопрос";
-        const isRight = $('user-ans').value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();
+        isChecked = true; \$('user-ans').disabled = true; \(('res-box').style.display = 'block';\)('action-btn').innerText = "Следующий вопрос";
+        const isRight = \$('user-ans').value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();
         
         if (isRight) score++;
         
-        $('module-counter').innerText = score + " / " + curMod.length;
-        $('res-box').className = "result-box " + (isRight ? 'correct' : 'wrong');
-        $('res-box').innerHTML = isRight ? "Правильно" : "Неверно.<br><div class='explanation'>Ответ: <b>" + curMod[curIdx].a + "</b></div><div class='explanation'>" + curMod[curIdx].info + "</div>";
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');
-    };
-
-    updateGlobalMenuUI();
-</script>
-</body>
-</html>
-    `;
-    return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });
-  }
-};
