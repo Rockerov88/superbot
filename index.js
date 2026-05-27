@@ -59,11 +59,11 @@ export default {
         <h2>Выбери модуль для учебы</h2>
         <div class="grid">
             <button class="btn" id="btn-biochem">🩸 Биохимия крови</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-cardio">🫀 Кардиология (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-neuro">🧠 Неврология (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-micro">🦠 Микробиология (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-pharm">🧪 Фармакология (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-anat">🦴 Анатомия (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-cardio">🫀 Белки (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-neuro">🧠 Ферменты. Гормоны (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-micro">🦠 Обмен веществ. Обмен углеводов (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-pharm">🧪 Обмен белков (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-anat">🦴 Обмен липидов (Скоро)</button>
         </div>
     </div>
 
