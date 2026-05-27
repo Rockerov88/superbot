@@ -34,12 +34,30 @@ export default {
         }
         .btn:active { transform: scale(0.98); }
         
+        /* Верхняя панель навигации теста */
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
         .btn-back-header {
             background: none; border: none;
             color: var(--tg-theme-button-color, #248bed);
             font-size: 14px; font-weight: 500; cursor: pointer;
-            padding: 0; margin-bottom: 15px; display: block;
-            text-align: left;
+            padding: 0; text-align: left;
+        }
+        
+        /* Стильный счётчик в верхнем правом углу */
+        .right-counter {
+            font-size: 13px;
+            font-weight: 600;
+            background-color: var(--tg-theme-button-color, #248bed);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            padding: 4px 10px;
+            border-radius: 20px;
+            opacity: 0.9;
         }
         
         .input-field {
@@ -66,18 +84,23 @@ export default {
     <div id="screen-modules">
         <h2>Выбери модуль для учебы</h2>
         <div class="grid">
-            <button class="btn" id="btn-proteins">Белки</button>
-            <button class="btn" id="btn-enzymes">Ферменты. Гормоны</button>
-            <button class="btn" id="btn-metabolism">Обмен веществ и углеводов</button>
-            <button class="btn" id="btn-protmetab">Обмен белков</button>
-            <button class="btn" id="btn-lipmetab">Обмен липидов</button>
-            <button class="btn" id="btn-blood">Биохимия крови</button>
+            <button class="btn" id="btn-proteins">🧪 Белки</button>
+            <button class="btn" id="btn-enzymes">🧬 Ферменты. Гормоны</button>
+            <button class="btn" id="btn-metabolism">🍞 Обмен веществ и углеводов</button>
+            <button class="btn" id="btn-protmetab">🥩 Обмен белков</button>
+            <button class="btn" id="btn-lipmetab">🥑 Обмен липидов</button>
+            <button class="btn" id="btn-blood">🩸 Биохимия крови</button>
         </div>
     </div>
 
     <!-- ЭКРАН 2: САМ ТЕСТ -->
     <div id="screen-test" style="display: none;">
-        <button class="btn-back-header" id="header-back-btn">⬅ Назад в меню</button>
+        <!-- Верхняя панель со счётчиком и кнопкой назад -->
+        <div class="test-header">
+            <button class="btn-back-header" id="header-back-btn">⬅ В меню</button>
+            <div class="right-counter" id="right-score-counter">0 / 0</div>
+        </div>
+        
         <div class="counter" id="quiz-counter">Вопрос 1</div>
         <p id="question-text" style="font-size: 18px; font-weight: 600; margin: 10px 0;"></p>
         
@@ -94,7 +117,7 @@ export default {
     <div id="screen-result" style="display: none;">
         <h2>🎉 Модуль пройден!</h2>
         <p style="text-align:center; font-size: 18px; margin: 15px 0;">
-            Твой результат: <b id="final-score">0</b> из <b id="final-total">0</b>
+            Твой итоговый результат: <b id="final-score">0</b> из <b id="final-total">0</b>
         </p>
         <button class="btn" id="finish-back-btn">📋 Вернуться в главное меню</button>
     </div>
@@ -104,7 +127,6 @@ export default {
     const tg = window.Telegram ? window.Telegram.WebApp : null;
     if (tg) tg.expand();
 
-    // БАЗА ДАННЫХ — ВСЕ ДЕФИСЫ В ИМЕНАХ КЛЮЧЕЙ УБРАНЫ
     const questionsDB = {
         proteins: [
             { q: "Как называется связь, соединяющая аминокислоты в первичной структуре белка?", a: "пептидная", info: "Пептидная связь образуется между карбоксильной группой одной аминокислоты и аминогруппой другой." }
@@ -137,6 +159,7 @@ export default {
     const screenResult = document.getElementById('screen-result');
     const qText = document.getElementById('question-text');
     const qCounter = document.getElementById('quiz-counter');
+    const rightScoreCounter = document.getElementById('right-score-counter');
     const userInp = document.getElementById('user-answer');
     const actionBtn = document.getElementById('action-btn');
     const rBox = document.getElementById('result-box');
@@ -173,6 +196,7 @@ export default {
     function showQuestion() {
         isChecked = false;
         qCounter.innerText = currentModuleName + " • Вопрос " + (currentIdx + 1) + " из " + currentModule.length;
+        rightScoreCounter.innerText = score + " / " + currentModule.length; // Обновляем правый счетчик
         qText.innerText = currentModule[currentIdx].q;
         userInp.value = "";
         userInp.disabled = false;
@@ -196,28 +220,4 @@ export default {
         }
 
         const userAnswer = userInp.value.trim().toLowerCase();
-        const correctAnswer = currentModule[currentIdx].a.toLowerCase();
-
-        userInp.disabled = true;
-        rBox.style.display = 'block';
-        isChecked = true;
-        actionBtn.innerText = "Следующий вопрос";
-
-        if (userAnswer === correctAnswer) {
-            score++;
-            rBox.className = "result-box correct";
-            rBox.innerHTML = "✨ Правильно!";
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        } else {
-            rBox.className = "result-box wrong";
-            rBox.innerHTML = "❌ Неверно.<br><div class='explanation'>Правильный ответ: <b>" + currentModule[currentIdx].a + "</b></div><div class='explanation'>" + currentModule[currentIdx].info + "</div>";
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-        }
-    });
-</script>
-</body>
-</html>
-    `;
-
-    return new Response(html, {
-headers: { "content-type": "text/html;charset=UTF-8" },});},};
+const correctAnswer = currentModule[currentIdx].a.toLowerCase();userInp.disabled = true;rBox.style.display = 'block';isChecked = true;actionBtn.innerText = "Следующий вопрос";if (userAnswer === correctAnswer) {score++;rightScoreCounter.innerText = score + " / " + currentModule.length; // Сразу обновляем при правильном ответеrBox.className = "result-box correct";rBox.innerHTML = "✨ Правильно!";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');} else {rBox.className = "result-box wrong";rBox.innerHTML = "❌ Неверно.Правильный ответ: " + currentModule[currentIdx].a + "" + currentModule[currentIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');}});
