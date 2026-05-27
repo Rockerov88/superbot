@@ -54,15 +54,15 @@ export default {
 <body>
 
 <div class="card">
-    <!-- ЭКРАН 1: НОВЫЙ ПОРЯДОК МОДУЛЕЙ -->
+    <!-- ЭКРАН 1: ВЫБОР МОДУЛЕЙ -->
     <div id="screen-modules">
         <h2>Выбери модуль для учебы</h2>
         <div class="grid">
             <button class="btn" id="btn-proteins">🧪 Белки</button>
             <button class="btn" id="btn-enzymes">🧬 Ферменты. Гормоны</button>
             <button class="btn" id="btn-metabolism">🍞 Обмен веществ и углеводов</button>
-            <button class="btn" id="btn-prot-metab">🥩 Обмен белков</button>
-            <button class="btn" id="btn-lip-metab">🥑 Обмен липидов</button>
+            <button class="btn" id="btn-protmetab">🥩 Обмен белков</button>
+            <button class="btn" id="btn-lipmetab">🥑 Обмен липидов</button>
             <button class="btn" id="btn-blood">🩸 Биохимия крови</button>
         </div>
     </div>
@@ -86,10 +86,10 @@ export default {
     const tg = window.Telegram ? window.Telegram.WebApp : null;
     if (tg) tg.expand();
 
-    // БАЗА ДАННЫХ ПО НОВЫМ МОДУЛЯМ БИОХИМИИ
+    // БАЗА ДАННЫХ (Исправлены имена ключей без дефисов)
     const questionsDB = {
         proteins: [
-            { q: "Как называется связь, соединяющая аминокислоты в первичной структуре белка?", a: "пептидная", info: "Пептидная связь образуется между карбоксильной группой одной аминокислоты и аминогруппой другой." }
+            { q: "Как называется связь, соединяющая аминокислоты в первичной структуру белка?", a: "пептидная", info: "Пептидная связь образуется между карбоксильной группой одной аминокислоты и аминогруппой другой." }
         ],
         enzymes: [
             { q: "Как называется белковая часть сложного фермента?", a: "апофермент", info: "Сложный фермент (холофермент) состоит из апофермента и кофактора." }
@@ -97,10 +97,10 @@ export default {
         metabolism: [
             { q: "Как называется процесс анаэробного распада глюкозы до лактата?", a: "гликолиз", info: "Анаэробный гликолиз протекает в цитозоле клеток без участия кислорода." }
         ],
-        prot-metab: [
+        protmetab: [
             { q: "В какой орган поступает большая часть аммиака для обезвреживания и синтеза мочевины?", a: "печень", info: "Орнитиновый цикл (синтез мочевины) происходит преимущественно в гепатоцитах печени." }
         ],
-        lip-metab: [
+        lipmetab: [
             { q: "В каких клеточных органеллах происходит процесс бета-окисления жирных кислот?", a: "митохондрии", info: "Для переноса жирных кислот в митохондрии используется карнитин." }
         ],
         blood: [
@@ -138,8 +138,8 @@ export default {
     document.getElementById('btn-proteins').addEventListener('click', () => startTest('proteins', 'Белки'));
     document.getElementById('btn-enzymes').addEventListener('click', () => startTest('enzymes', 'Ферменты. Гормоны'));
     document.getElementById('btn-metabolism').addEventListener('click', () => startTest('metabolism', 'Обмен веществ и углеводов'));
-    document.getElementById('btn-prot-metab').addEventListener('click', () => startTest('prot-metab', 'Обмен белков'));
-    document.getElementById('btn-lip-metab').addEventListener('click', () => startTest('lip-metab', 'Обмен липидов'));
+    document.getElementById('btn-protmetab').addEventListener('click', () => startTest('protmetab', 'Обмен белков'));
+    document.getElementById('btn-lipmetab').addEventListener('click', () => startTest('lipmetab', 'Обмен липидов'));
     document.getElementById('btn-blood').addEventListener('click', () => startTest('blood', 'Биохимия крови'));
 
     function showQuestion() {
@@ -193,3 +193,4 @@ export default {
     });
   },
 };
+
