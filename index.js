@@ -82,12 +82,12 @@ export default {
     <div id="screen-modules">
         <h2>Выбери модуль для учебы</h2>
         <div class="grid">
-            <button class="btn" id="btn-proteins">🧪 Белки</button>
-            <button class="btn" id="btn-enzymes">🧬 Ферменты. Гормоны</button>
-            <button class="btn" id="btn-metabolism">🍞 Обмен веществ и углеводов</button>
-            <button class="btn" id="btn-protmetab">🥩 Обмен белков</button>
-            <button class="btn" id="btn-lipmetab">🥑 Обмен липидов</button>
-            <button class="btn" id="btn-blood">🩸 Биохимия крови</button>
+            <button class="btn" id="btn-proteins"> Белки</button>
+            <button class="btn" id="btn-enzymes">Ферменты. Гормоны</button>
+            <button class="btn" id="btn-metabolism">Обмен веществ и углеводов</button>
+            <button class="btn" id="btn-protmetab">Обмен белков</button>
+            <button class="btn" id="btn-lipmetab">Обмен липидов</button>
+            <button class="btn" id="btn-blood">Биохимия крови</button>
         </div>
     </div>
 
