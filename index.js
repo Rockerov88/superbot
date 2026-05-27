@@ -58,12 +58,13 @@ export default {
     <div id="screen-modules">
         <h2>Выбери модуль для учебы</h2>
         <div class="grid">
+            
+            <button class="btn" style="opacity: 0.5;" id="btn-cardio">Белки (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-neuro">Ферменты. Гормоны (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-micro">Обмен веществ. Обмен углеводов (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-pharm">Обмен белков (Скоро)</button>
+            <button class="btn" style="opacity: 0.5;" id="btn-anat">Обмен липидов (Скоро)</button>
             <button class="btn" id="btn-biochem">🩸 Биохимия крови</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-cardio">🫀 Белки (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-neuro">🧠 Ферменты. Гормоны (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-micro">🦠 Обмен веществ. Обмен углеводов (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-pharm">🧪 Обмен белков (Скоро)</button>
-            <button class="btn" style="opacity: 0.5;" id="btn-anat">🦴 Обмен липидов (Скоро)</button>
         </div>
     </div>
 
