@@ -1,7 +1,3 @@
-// v18 - total syntax fix, stable counters and working buttons
-export default {
-  async fetch(request, env, ctx) {
-    const html = `
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -125,7 +121,7 @@ export default {
         'enzymes': [{ q: "Как называется белковая часть сложного фермента?", a: "апофермент", info: "Сложный фермент состоит из апофермента и кофактора." }],
         'metabolism': [{ q: "Как называется процесс анаэробного распада глюкозы до лактата?", a: "гликолиз", info: "Анаэробный гликолиз протекает в цитозоле клеток без участия кислорода." }],
         'protmetab': [{ q: "В какой орган поступает большая часть аммиака для обезвреживания?", a: "печень", info: "Орнитиновый цикл происходит преимущественно в гепатоцитах печени." }],
-        'lipmetab': [{ q: "В каких клеточных органеллах происходит процесс бета-окисления жирных кольт?", a: "митохондрии", info: "Для переноса жирных кислот в митохондрии используется карнитин." }],
+        'lipmetab': [{ q: "В каких клеточных органеллах происходит процесс бета-окисления жирных кислот?", a: "митохондрии", info: "Для переноса жирных кислот в митохондрии используется карнитин." }],
         'blood': [{ q: "Какой белок плазмы крови отвечает за удержание воды в сосудистом русле?", a: "альбумин", info: "Альбумины составляют около 60% всех белков плазмы." }]
     };
 
@@ -197,4 +193,8 @@ export default {
 
     function showQ() {
         isChecked = false;
-qCounter.innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;moduleCounter.innerText = score + " / " + curMod.length;qText.innerText = curMod[curIdx].q;userInp.value = "";userInp.disabled = false;resBox.style.display = 'none';actionBtn.innerText = "Проверить ответ";}actionBtn.onclick = function() {if (isChecked) {if (++curIdx < curMod.length) {return showQ();}var previousRecord = parseInt(localStorage.getItem('score_' + curKey)) || 0;if (score > previousRecord) {localStorage.setItem('score_' + curKey, String(score));}screenTest.style.display = 'none';screenResult.style.display = 'block';fScore.innerText = score;fTotal.innerText = curMod.length;if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');return;}isChecked = true;userInp.disabled = true;resBox.style.display = 'block';actionBtn.innerText = "Следующий вопрос";var isRight = userInp.value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();if (isRight) score++;moduleCounter.innerText = score + " / " + curMod.length;resBox.className = "result-box " + (isRight ? 'correct' : 'wrong');resBox.innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
+        qCounter.innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
+        moduleCounter.innerText = score + " / " + curMod.length;
+        qText.innerText = curMod[curIdx].q;
+        userInp.value = ""; 
+userInp.disabled = false;resBox.style.display = 'none';actionBtn.innerText = "Проверить ответ";}actionBtn.onclick = function() {if (isChecked) {if (++curIdx < curMod.length) {return showQ();}var previousRecord = parseInt(localStorage.getItem('score_' + curKey)) || 0;if (score > previousRecord) {localStorage.setItem('score_' + curKey, String(score));}screenTest.style.display = 'none';screenResult.style.display = 'block';fScore.innerText = score;fTotal.innerText = curMod.length;if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');return;}isChecked = true;userInp.disabled = true;resBox.style.display = 'block';actionBtn.innerText = "Следующий вопрос";var isRight = userInp.value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();if (isRight) score++;moduleCounter.innerText = score + " / " + curMod.length;resBox.className = "result-box " + (isRight ? 'correct' : 'wrong');resBox.innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();
