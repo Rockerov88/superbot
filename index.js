@@ -180,14 +180,15 @@ export default {
     }
 
     // Надежная привязка обработчиков ко всем кнопкам модулей
-    const menuButtons = screenModules.getElementsByClassName('btn');
-    for (let i = 0; i < menuButtons.length; i++) {
-        menuButtons[i].addEventListener('click', function() {
+        // Полностью переписанный стабильный метод привязки кнопок
+    document.querySelectorAll('.module-selector').forEach(function(button) {
+        button.addEventListener('click', function() {
             const modId = this.getAttribute('data-module');
             const modName = this.getAttribute('data-name');
             startTest(modId, modName);
         });
-    }
+    });
+
 
     function showQuestion() {
         isChecked = false;
