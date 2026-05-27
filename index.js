@@ -11,7 +11,7 @@ export default {
     <script src="https://telegram.org"></script>
     <style>
         body { font-family: -apple-system, sans-serif; background: var(--tg-theme-bg-color, #f5f5f5); color: var(--tg-theme-text-color, #222); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 90vh; }
-        .card { background: var(--tg-theme-secondary-bg-color, #fff); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 440px; box-sizing: border-box; position: relative; }
+        
         h2 { color: var(--tg-theme-button-color, #248bed); text-align: center; margin-top: 0; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
         .btn { background: var(--tg-theme-button-color, #248bed); color: var(--tg-theme-button-text-color, #fff); border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.1s; }
@@ -28,6 +28,19 @@ export default {
         .wrong { background: #f8d7da; color: #721c24; }
         .explanation { font-size: 14px; font-weight: normal; margin-top: 5px; opacity: 0.9; }
         .counter { font-size: 13px; opacity: 0.6; margin-bottom: 5px; }
+                /* Увеличен отступ сверху для карточки, чтобы заголовки не прижимались к краю */
+        .card { background: var(--tg-theme-secondary-bg-color, #fff); border-radius: 16px; padding: 30px 20px 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 440px; box-sizing: border-box; position: relative; }
+        
+        /* Смещаем заголовок ниже и добавляем свободного пространства вокруг */
+        h2 {margin: 25px 0 10px 0; }
+        .grid { }
+        .btn {  }
+        .btn:active { 
+        .btn-back { }
+        
+        /* Плашка теперь аккуратно прижата к самому верхнему правому краю карточки */
+        .counters-block { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
+
     </style>
 </head>
 <body>
