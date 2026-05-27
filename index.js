@@ -1,3 +1,4 @@
+// v5 - fixed positioning error
 export default {
   async fetch(request, env, ctx) {
     const html = `
@@ -21,6 +22,7 @@ export default {
             border-radius: 16px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             width: 100%; max-width: 440px; box-sizing: border-box;
+            position: relative; /* Важно для фиксации счетчика */
         }
         h2 { color: var(--tg-theme-button-color, #248bed); margin-top: 0; text-align: center; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
@@ -34,30 +36,26 @@ export default {
         }
         .btn:active { transform: scale(0.98); }
         
-        /* Верхняя панель навигации теста */
-        .test-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
         .btn-back-header {
             background: none; border: none;
             color: var(--tg-theme-button-color, #248bed);
             font-size: 14px; font-weight: 500; cursor: pointer;
-            padding: 0; text-align: left;
+            padding: 0; margin-bottom: 15px; display: inline-block;
+            text-align: left;
         }
         
-        /* Стильный счётчик в верхнем правом углу */
+        /* Жесткое позиционирование счетчика в правом верхнем углу */
         .right-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: bold;
             background-color: var(--tg-theme-button-color, #248bed);
             color: var(--tg-theme-button-text-color, #ffffff);
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
-            opacity: 0.9;
+            z-index: 10;
         }
         
         .input-field {
@@ -95,11 +93,10 @@ export default {
 
     <!-- ЭКРАН 2: САМ ТЕСТ -->
     <div id="screen-test" style="display: none;">
-        <!-- Верхняя панель со счётчиком и кнопкой назад -->
-        <div class="test-header">
-            <button class="btn-back-header" id="header-back-btn">⬅ В меню</button>
-            <div class="right-counter" id="right-score-counter">0 / 0</div>
-        </div>
+        <button class="btn-back-header" id="header-back-btn">⬅ Назад в меню</button>
+        
+        <!-- Счетчик теперь внутри правильного контейнера -->
+        <div class="right-counter" id="right-score-counter">0 / 0</div>
         
         <div class="counter" id="quiz-counter">Вопрос 1</div>
         <p id="question-text" style="font-size: 18px; font-weight: 600; margin: 10px 0;"></p>
@@ -196,7 +193,7 @@ export default {
     function showQuestion() {
         isChecked = false;
         qCounter.innerText = currentModuleName + " • Вопрос " + (currentIdx + 1) + " из " + currentModule.length;
-        rightScoreCounter.innerText = score + " / " + currentModule.length; // Обновляем правый счетчик
+        rightScoreCounter.innerText = score + " / " + currentModule.length;
         qText.innerText = currentModule[currentIdx].q;
         userInp.value = "";
         userInp.disabled = false;
@@ -220,4 +217,6 @@ export default {
         }
 
         const userAnswer = userInp.value.trim().toLowerCase();
-const correctAnswer = currentModule[currentIdx].a.toLowerCase();userInp.disabled = true;rBox.style.display = 'block';isChecked = true;actionBtn.innerText = "Следующий вопрос";if (userAnswer === correctAnswer) {score++;rightScoreCounter.innerText = score + " / " + currentModule.length; // Сразу обновляем при правильном ответеrBox.className = "result-box correct";rBox.innerHTML = "✨ Правильно!";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');} else {rBox.className = "result-box wrong";rBox.innerHTML = "❌ Неверно.Правильный ответ: " + currentModule[currentIdx].a + "" + currentModule[currentIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');}});
+        const correctAnswer = currentModule[currentIdx].a.toLowerCase();
+
+userInp.disabled = true;rBox.style.display = 'block';isChecked = true;actionBtn.innerText = "Следующий вопрос";if (userAnswer === correctAnswer) {score++;rightScoreCounter.innerText = score + " / " + currentModule.length;rBox.className = "result-box correct";rBox.innerHTML = "✨ Правильно!";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');} else {rBox.className = "result-box wrong";rBox.innerHTML = "❌ Неверно.Правильный ответ: " + currentModule[currentIdx].a + "" + currentModule[currentIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');}});`;return new Response(html, {headers: { "content-type": "text/html;charset=UTF-8" },});},};
