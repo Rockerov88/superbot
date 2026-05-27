@@ -1,4 +1,4 @@
-// v14 - modern medical mint design with full tg dark theme support
+// v15 - comprehensive design and syntax fix
 export default {
   async fetch(request) {
     const html = `
@@ -18,7 +18,6 @@ export default {
             display: flex; flex-direction: column; align-items: center; min-height: 90vh; 
         }
         
-        /* Карточка с мягкими углами и легкой бирюзовой тенью */
         .card { 
             background: var(--tg-theme-secondary-bg-color, #ffffff); 
             border-radius: 20px; padding: 35px 20px 24px 20px; 
@@ -28,7 +27,6 @@ export default {
             border: 1px solid rgba(16, 185, 129, 0.1);
         }
         
-        /* Заголовок со смещением вниз под плашку рекордов */
         h2 { 
             color: var(--tg-theme-button-color, #008080); 
             text-align: center; margin: 25px 0 15px 0; 
@@ -37,7 +35,6 @@ export default {
         
         .grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
         
-        /* Премиальные градиентные кнопки с объемом */
         .btn { 
             background: linear-gradient(135deg, #10b981 0%, #008080 100%); 
             color: #ffffff; 
@@ -48,7 +45,6 @@ export default {
         }
         .btn:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(0, 128, 128, 0.1); }
         
-        /* Кнопка назад без фона */
         .btn-back { 
             background: none; border: none; 
             color: var(--tg-theme-button-color, #008080); 
@@ -58,10 +54,8 @@ export default {
         }
         .btn-back:active { opacity: 0.7; }
         
-        /* Верхний блок для счетчиков */
         .counters-block { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
         
-        /* Закругленные медицинские плашки */
         .badge { 
             font-size: 11px; font-weight: 700; 
             background: rgba(0, 128, 128, 0.1); 
@@ -70,7 +64,6 @@ export default {
         }
         .badge-global { background: #10b981; color: #ffffff; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2); }
         
-        /* Оптимизированное и чистое поле ввода ответа */
         .input-field { 
             width: 100%; padding: 14px; border-radius: 12px; 
             border: 2px solid rgba(16, 185, 129, 0.2); font-size: 16px; margin-top: 10px; 
@@ -80,7 +73,6 @@ export default {
         }
         .input-field:focus { outline: none; border-color: #008080; }
         
-        /* Блоки верных/неверных результатов */
         .result-box { margin-top: 18px; padding: 14px; border-radius: 12px; font-weight: 600; text-align: center; display: none; }
         .correct { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
         .wrong { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
@@ -131,7 +123,11 @@ export default {
     };
 
     let curMod = [], curName = "", curKey = "", curIdx = 0, isChecked = false, score = 0;
-    const \$ = id => document.getElementById(id);
+    
+    // Чистая функция поиска элементов без экранирования
+    function getEl(id) {
+        return document.getElementById(id);
+    }
 
     let totalQuestionsInDB = 0;
     Object.keys(db).forEach(key => { totalQuestionsInDB += db[key].list.length; });
@@ -143,39 +139,48 @@ export default {
             totalCorrectSaved += savedScore;
         });
         
-        \$('global-solved').innerText = totalCorrectSaved;
-        \$('global-total').innerText = totalQuestionsInDB;
+        getEl('global-solved').innerText = totalCorrectSaved;
+        getEl('global-total').innerText = totalQuestionsInDB;
     }
 
+    // Безопасная генерация кнопок меню
     Object.keys(db).forEach(key => {
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.innerText = db[key].name;
         btn.onclick = () => {
             curMod = db[key].list; curName = db[key].name; curKey = key; curIdx = score = 0;
-            \$('screen-modules').style.display = 'none'; \(('main-counters').style.display = 'none';\)('screen-test').style.display = 'block';
+            getEl('screen-modules').style.display = 'none'; 
+            getEl('main-counters').style.display = 'none'; 
+            getEl('screen-test').style.display = 'block';
             showQ();
         };
-        \$('menu-grid').appendChild(btn);
+        getEl('menu-grid').appendChild(btn);
     });
 
     const toMenu = () => { 
-        \(('screen-test').style.display =\)('screen-result').style.display = 'none'; 
-        \(('screen-modules').style.display = 'block';\)('main-counters').style.display = 'flex';
+        getEl('screen-test').style.display = 'none';
+        getEl('screen-result').style.display = 'none'; 
+        getEl('screen-modules').style.display = 'block'; 
+        getEl('main-counters').style.display = 'flex';
         updateGlobalMenuUI();
     };
-    \(('back-btn').onclick = toMenu; \)('finish-btn').onclick = toMenu;
+    
+    getEl('back-btn').onclick = toMenu; 
+    getEl('finish-btn').onclick = toMenu;
 
     function showQ() {
         isChecked = false;
-        \$('q-counter').innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
-        \$('module-counter').innerText = score + " / " + curMod.length;
-        \$('q-text').innerText = curMod[curIdx].q;
-        \(('user-ans').value = ""; \)('user-ans').disabled = false;
-        \(('res-box').style.display = 'none';\)('action-btn').innerText = "Проверить ответ";
+        getEl('q-counter').innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
+        getEl('module-counter').innerText = score + " / " + curMod.length;
+        getEl('q-text').innerText = curMod[curIdx].q;
+        getEl('user-ans').value = ""; 
+        getEl('user-ans').disabled = false;
+        getEl('res-box').style.display = 'none'; 
+        getEl('action-btn').innerText = "Проверить ответ";
     }
 
-    \$('action-btn').onclick = () => {
+    getEl('action-btn').onclick = () => {
         if (isChecked) {
             if (++curIdx < curMod.length) return showQ();
             
@@ -184,15 +189,21 @@ export default {
                 localStorage.setItem('score_' + curKey, String(score));
             }
 
-            \(('screen-test').style.display = 'none';\)('screen-result').style.display = 'block';
-            \(('f-score').innerText = score; \)('f-total').innerText = curMod.length;
+            getEl('screen-test').style.display = 'none'; 
+            getEl('screen-result').style.display = 'block';
+            getEl('f-score').innerText = score; 
+            getEl('f-total').innerText = curMod.length;
             if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             return;
         }
         
-        isChecked = true; \$('user-ans').disabled = true; \(('res-box').style.display = 'block';\)('action-btn').innerText = "Следующий вопрос";
-        const isRight = \$('user-ans').value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();
+        isChecked = true; 
+        getEl('user-ans').disabled = true; 
+        getEl('res-box').style.display = 'block'; 
+        getEl('action-btn').innerText = "Следующий вопрос";
+        
+        const isRight = getEl('user-ans').value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();
         
         if (isRight) score++;
-        $('module-counter').innerText = score + " / " + curMod.length;$('res-box').className = "result-box " + (isRight ? 'correct' : 'wrong');$('res-box').innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
         
+getEl('module-counter').innerText = score + " / " + curMod.length;getEl('res-box').className = "result-box " + (isRight ? 'correct' : 'wrong');getEl('res-box').innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
