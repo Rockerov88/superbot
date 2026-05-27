@@ -1,6 +1,5 @@
-// v15 - comprehensive design and syntax fix
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
     const html = `
 <!DOCTYPE html>
 <html lang="ru">
@@ -29,7 +28,7 @@ export default {
         
         h2 { 
             color: var(--tg-theme-button-color, #008080); 
-            text-align: center; margin: 25px 0 15px 0; 
+            text-align: center; margin: 35px 0 15px 0; 
             font-size: 22px; font-weight: 700;
         }
         
@@ -82,15 +81,25 @@ export default {
 </head>
 <body>
 <div class="card">
+    <!-- Глобальная плашка общего прогресса в главном меню -->
     <div class="counters-block" id="main-counters">
         <div class="badge badge-global">Решено задач: <span id="global-solved">0</span> / <span id="global-total">0</span></div>
     </div>
 
+    <!-- ЭКРАН 1: ПРЯМАЯ HTML РАЗМЕТКА КНОПОК -->
     <div id="screen-modules">
         <h2>Выбери модуль для учебы</h2>
-        <div class="grid" id="menu-grid"></div>
+        <div class="grid">
+            <button class="btn" id="btn-proteins">Белки</button>
+            <button class="btn" id="btn-enzymes">Ферменты. Гормоны</button>
+            <button class="btn" id="btn-metabolism">Обмен веществ и углеводов</button>
+            <button class="btn" id="btn-protmetab">Обмен белков</button>
+            <button class="btn" id="btn-lipmetab">Обмен липидов</button>
+            <button class="btn" id="btn-blood">Биохимия крови</button>
+        </div>
     </div>
     
+    <!-- ЭКРАН 2: ТЕСТ -->
     <div id="screen-test" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <button class="btn-back" id="back-btn">Назад в меню</button>
@@ -103,6 +112,7 @@ export default {
         <div id="res-box" class="result-box"></div>
     </div>
     
+    <!-- ЭКРАН 3: РЕЗУЛЬТАТ -->
     <div id="screen-result" style="display: none; text-align: center;">
         <h2 style="margin-top: 10px;">Модуль пройден</h2>
         <p style="font-size: 18px; margin: 15px 0;">Твой результат в модуле: <b id="f-score">0</b> из <b id="f-total">0</b></p>
@@ -113,97 +123,78 @@ export default {
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    const db = {
-        proteins: { name: "Белки", list: [{ q: "Как называется связь, соединяющая аминокислоты в первичной структуре белка?", a: "пептидная", info: "Пептидная связь образуется между карбоксильной группой одной аминокислоты и аминогруппой другой." }] },
-        enzymes: { name: "Ферменты. Гормоны", list: [{ q: "Как называется белковая часть сложного фермента?", a: "апофермент", info: "Сложный фермент состоит из апофермента и кофактора." }] },
-        metabolism: { name: "Обмен веществ и углеводов", list: [{ q: "Как называется процесс анаэробного распада глюкозы до лактата?", a: "гликолиз", info: "Анаэробный гликолиз протекает в цитозоле клеток без участия кислорода." }] },
-        protmetab: { name: "Обмен белков", list: [{ q: "В какой орган поступает большая часть аммиака для обезвреживания?", a: "печень", info: "Орнитиновый цикл происходит преимущественно в гепатоцитах печени." }] },
-        lipmetab: { name: "Обмен липидов", list: [{ q: "В каких клеточных органеллах происходит процесс бета-окисления жирных кислот?", a: "митохондрии", info: "Для переноса жирных кислот в митохондрии используется карнитин." }] },
-        blood: { name: "Биохимия крови", list: [{ q: "Какой белок плазмы крови отвечает за удержание воды в сосудистом русле?", a: "альбумин", info: "Альбумины составляют около 60% всех белков плазмы." }] }
+    const questionsDB = {
+        proteins: [
+            { q: "Как называется связь, соединяющая аминокислоты в первичной структуре белка?", a: "пептидная", info: "Пептидная связь образуется между карбоксильной группой одной аминокислоты и аминогруппой другой." }
+        ],
+        enzymes: [
+            { q: "Как называется белковая часть сложного фермента?", a: "апофермент", info: "Сложный фермент состоит из апофермента и кофактора." }
+        ],
+        metabolism: [
+            { q: "Как называется процесс анаэробного распада глюкозы до лактата?", a: "гликолиз", info: "Анаэробный гликолиз протекает в цитозоле клеток без участия кислорода." }
+        ],
+        protmetab: [
+            { q: "В какой орган поступает большая часть аммиака для обезвреживания?", a: "печень", info: "Орнитиновый цикл происходит преимущественно в гепатоцитах печени." }
+        ],
+        lipmetab: [
+            { q: "В каких клеточных органеллах происходит процесс бета-окисления жирных кислот?", a: "митохондрии", info: "Для переноса жирных кислот в митохондрии используется карнитин." }
+        ],
+        blood: [
+            { q: "Какой белок плазмы крови отвечает за удержание воды в сосудистом русле?", a: "альбумин", info: "Альбумины составляют около 60% всех белков плазмы." }
+        ]
     };
 
     let curMod = [], curName = "", curKey = "", curIdx = 0, isChecked = false, score = 0;
     
-    // Чистая функция поиска элементов без экранирования
-    function getEl(id) {
-        return document.getElementById(id);
-    }
+    const screenModules = document.getElementById('screen-modules');
+    const screenTest = document.getElementById('screen-test');
+    const screenResult = document.getElementById('screen-result');
+    const mainCounters = document.getElementById('main-counters');
+    const qText = document.getElementById('q-text');
+    const qCounter = document.getElementById('q-counter');
+    const moduleCounter = document.getElementById('module-counter');
+    const userInp = document.getElementById('user-ans');
+    const actionBtn = document.getElementById('action-btn');
+    const resBox = document.getElementById('res-box');
+    const fScore = document.getElementById('f-score');
+    const fTotal = document.getElementById('f-total');
+    const globalSolved = document.getElementById('global-solved');
+    const globalTotal = document.getElementById('global-total');
 
     let totalQuestionsInDB = 0;
-    Object.keys(db).forEach(key => { totalQuestionsInDB += db[key].list.length; });
+    Object.keys(questionsDB).forEach(key => { totalQuestionsInDB += questionsDB[key].length; });
 
     function updateGlobalMenuUI() {
         let totalCorrectSaved = 0;
-        Object.keys(db).forEach(key => {
+        Object.keys(questionsDB).forEach(key => {
             const savedScore = parseInt(localStorage.getItem('score_' + key)) || 0;
             totalCorrectSaved += savedScore;
         });
-        
-        getEl('global-solved').innerText = totalCorrectSaved;
-        getEl('global-total').innerText = totalQuestionsInDB;
+        globalSolved.innerText = totalCorrectSaved;
+        globalTotal.innerText = totalQuestionsInDB;
     }
 
-    // Безопасная генерация кнопок меню
-    Object.keys(db).forEach(key => {
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.innerText = db[key].name;
-        btn.onclick = () => {
-            curMod = db[key].list; curName = db[key].name; curKey = key; curIdx = score = 0;
-            getEl('screen-modules').style.display = 'none'; 
-            getEl('main-counters').style.display = 'none'; 
-            getEl('screen-test').style.display = 'block';
-            showQ();
-        };
-        getEl('menu-grid').appendChild(btn);
-    });
+    function startTest(moduleId, rusName) {
+        curMod = questionsDB[moduleId];
+        curName = rusName;
+        curKey = moduleId;
+        curIdx = 0;
+        score = 0;
+        screenModules.style.display = 'none'; 
+        mainCounters.style.display = 'none'; 
+        screenTest.style.display = 'block';
+        showQ();
+    }
+
+    // Железобетонная прямая привязка кнопок по ID
+    document.getElementById('btn-proteins').addEventListener('click', function() { startTest('proteins', 'Белки'); });
+    document.getElementById('btn-enzymes').addEventListener('click', function() { startTest('enzymes', 'Ферменты. Гормоны'); });
+    document.getElementById('btn-metabolism').addEventListener('click', function() { startTest('metabolism', 'Обмен веществ и углеводов'); });
+    document.getElementById('btn-protmetab').addEventListener('click', function() { startTest('protmetab', 'Обмен белков'); });
+    document.getElementById('btn-lipmetab').addEventListener('click', function() { startTest('lipmetab', 'Обмен липидов'); });
+    document.getElementById('btn-blood').addEventListener('click', function() { startTest('blood', 'Биохимия крови'); });
 
     const toMenu = () => { 
-        getEl('screen-test').style.display = 'none';
-        getEl('screen-result').style.display = 'none'; 
-        getEl('screen-modules').style.display = 'block'; 
-        getEl('main-counters').style.display = 'flex';
-        updateGlobalMenuUI();
-    };
-    
-    getEl('back-btn').onclick = toMenu; 
-    getEl('finish-btn').onclick = toMenu;
-
-    function showQ() {
-        isChecked = false;
-        getEl('q-counter').innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
-        getEl('module-counter').innerText = score + " / " + curMod.length;
-        getEl('q-text').innerText = curMod[curIdx].q;
-        getEl('user-ans').value = ""; 
-        getEl('user-ans').disabled = false;
-        getEl('res-box').style.display = 'none'; 
-        getEl('action-btn').innerText = "Проверить ответ";
-    }
-
-    getEl('action-btn').onclick = () => {
-        if (isChecked) {
-            if (++curIdx < curMod.length) return showQ();
-            
-            const previousRecord = parseInt(localStorage.getItem('score_' + curKey)) || 0;
-            if (score > previousRecord) {
-                localStorage.setItem('score_' + curKey, String(score));
-            }
-
-            getEl('screen-test').style.display = 'none'; 
-            getEl('screen-result').style.display = 'block';
-            getEl('f-score').innerText = score; 
-            getEl('f-total').innerText = curMod.length;
-            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            return;
-        }
-        
-        isChecked = true; 
-        getEl('user-ans').disabled = true; 
-        getEl('res-box').style.display = 'block'; 
-        getEl('action-btn').innerText = "Следующий вопрос";
-        
-        const isRight = getEl('user-ans').value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();
-        
-        if (isRight) score++;
-        
-getEl('module-counter').innerText = score + " / " + curMod.length;getEl('res-box').className = "result-box " + (isRight ? 'correct' : 'wrong');getEl('res-box').innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
+        screenTest.style.display = 'none';
+        screenResult.style.display = 'none'; 
+screenModules.style.display = 'block';mainCounters.style.display = 'flex';updateGlobalMenuUI();};document.getElementById('back-btn').onclick = toMenu;document.getElementById('finish-btn').onclick = toMenu;function showQ() {isChecked = false;qCounter.innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;moduleCounter.innerText = score + " / " + curMod.length;qText.innerText = curMod[curIdx].q;userInp.value = "";userInp.disabled = false;resBox.style.display = 'none';actionBtn.innerText = "Проверить ответ";}actionBtn.onclick = () => {if (isChecked) {if (++curIdx < curMod.length) return showQ();const previousRecord = parseInt(localStorage.getItem('score_' + curKey)) || 0;if (score > previousRecord) {localStorage.setItem('score_' + curKey, String(score));}screenTest.style.display = 'none';screenResult.style.display = 'block';fScore.innerText = score;fTotal.innerText = curMod.length;if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');return;}isChecked = true;userInp.disabled = true;resBox.style.display = 'block';actionBtn.innerText = "Следующий вопрос";const isRight = userInp.value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();if (isRight) score++;moduleCounter.innerText = score + " / " + curMod.length;resBox.className = "result-box " + (isRight ? 'correct' : 'wrong');resBox.innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
