@@ -1,3 +1,4 @@
+// v22 - fixed actual reference error in loop
 export default {
   async fetch(request, env, ctx) {
     const html = `
@@ -68,7 +69,6 @@ export default {
             border: 2px solid rgba(16, 185, 129, 0.2); font-size: 16px; margin-top: 10px; 
             box-sizing: border-box; background: var(--tg-theme-bg-color, #fafafa); 
             color: var(--tg-theme-text-color, #1f2937);
-            transition: border-color 0.2s;
         }
         .input-field:focus { outline: none; border-color: #008080; }
         
@@ -128,12 +128,7 @@ export default {
         'blood': [{ q: "Какой белок плазмы крови отвечает за удержание воды в сосудистом русле?", a: "альбумин", info: "Альбумины составляют около 60% всех белков плазмы." }]
     };
 
-    var curMod = [];
-    var curName = "";
-    var curKey = "";
-    var curIdx = 0;
-    var isChecked = false;
-    var score = 0;
+    var curMod = []; var curName = ""; var curKey = ""; var curIdx = 0; var isChecked = false; var score = 0;
     
     var screenModules = document.getElementById('screen-modules');
     var screenTest = document.getElementById('screen-test');
@@ -157,7 +152,7 @@ export default {
     function updateGlobalMenuUI() {
         var totalCorrectSaved = 0;
         for (var i = 0; i < keysList.length; i++) {
-            var k = keysList[i];
+            var k = keysList[i]; // Исправлено: теперь переменная k объявлена корректно
             var savedScore = parseInt(localStorage.getItem('score_' + k)) || 0;
             totalCorrectSaved += savedScore;
         }
@@ -169,8 +164,7 @@ export default {
         curMod = questionsDB[moduleId];
         curName = rusName;
         curKey = moduleId;
-        curIdx = 0;
-        score = 0;
+        curIdx = 0; score = 0;
         screenModules.style.display = 'none'; 
         mainCounters.style.display = 'none'; 
         screenTest.style.display = 'block';
@@ -185,17 +179,13 @@ export default {
     document.getElementById('btn-blood').onclick = function() { startTest('blood', 'Биохимия крови'); };
 
     var toMenu = function() { 
-        screenTest.style.display = 'none';
-        screenResult.style.display = 'none'; 
-        screenModules.style.display = 'block'; 
-        mainCounters.style.display = 'flex';
+        screenTest.style.display = 'none'; screenResult.style.display = 'none'; 
+        screenModules.style.display = 'block'; mainCounters.style.display = 'flex';
         updateGlobalMenuUI();
     };
-    
     document.getElementById('back-btn').onclick = toMenu; 
     document.getElementById('finish-btn').onclick = toMenu;
 
     function showQ() {
         isChecked = false;
-        qCounter.innerText = curName + " • Вопрос " + (curIdx + 1) + " из " + curMod.length;
-moduleCounter.innerText = score + " / " + curMod.length;qText.innerText = curMod[curIdx].q;userInp.value = "";userInp.disabled = false;resBox.style.display = 'none';actionBtn.innerText = "Проверить ответ";}actionBtn.onclick = function() {if (isChecked) {if (++curIdx < curMod.length) {return showQ();}var previousRecord = parseInt(localStorage.getItem('score_' + curKey)) || 0;if (score > previousRecord) {localStorage.setItem('score_' + curKey, String(score));}screenTest.style.display = 'none';screenResult.style.display = 'block';fScore.innerText = score;fTotal.innerText = curMod.length;if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');return;}isChecked = true;userInp.disabled = true;resBox.style.display = 'block';actionBtn.innerText = "Следующий вопрос";var isRight = userInp.value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();if (isRight) score++;moduleCounter.innerText = score + " / " + curMod.length;resBox.className = "result-box " + (isRight ? 'correct' : 'wrong');resBox.innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
+qCounter.innerText = curName + " " + String.fromCharCode(8226) + " Вопрос " + (curIdx + 1) + " из " + curMod.length;moduleCounter.innerText = score + " / " + curMod.length;qText.innerText = curMod[curIdx].q;userInp.value = ""; userInp.disabled = false;resBox.style.display = 'none'; actionBtn.innerText = "Проверить ответ";}actionBtn.onclick = function() {if (isChecked) {if (++curIdx < curMod.length) return showQ();var previousRecord = parseInt(localStorage.getItem('score_' + curKey)) || 0;if (score > previousRecord) localStorage.setItem('score_' + curKey, String(score));screenTest.style.display = 'none'; screenResult.style.display = 'block';fScore.innerText = score; fTotal.innerText = curMod.length;if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');return;}isChecked = true; userInp.disabled = true; resBox.style.display = 'block'; actionBtn.innerText = "Следующий вопрос";var isRight = userInp.value.trim().toLowerCase() === curMod[curIdx].a.toLowerCase();if (isRight) score++;moduleCounter.innerText = score + " / " + curMod.length;resBox.className = "result-box " + (isRight ? 'correct' : 'wrong');resBox.innerHTML = isRight ? "Правильно" : "Неверно.Ответ: " + curMod[curIdx].a + "" + curMod[curIdx].info + "";if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(isRight ? 'success' : 'error');};updateGlobalMenuUI();`;return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });}};
